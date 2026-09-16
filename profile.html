@@ -35,6 +35,8 @@
     <h1 class="profile-hello">Привет, <span class="profile-name" id="pName">…</span></h1>
 
     <h2 class="profile-title">Информация о профиле</h2>
+    <div id="statusBanner" class="freeze-banner" style="margin:0 0 14px"></div>
+    <div class="panel-links" id="panelLinks" style="display:none;margin:0 0 14px"></div>
     <div class="profile-card">
       <div class="p-row"><span>Дата регистрации</span><b id="pDate">…</b></div>
       <div class="p-row"><span>ID</span><b id="pId">…</b></div>
@@ -87,7 +89,7 @@ async function load(){
 
   let profile = null;
   try {
-    const r = await sb.from('profiles').select('id, username, role, hwid, telegram_chat_id').eq('user_id', user.id).single();
+    const r = await sb.from('profiles').select('id, username, role, hwid, frozen, telegram_chat_id').eq('user_id', user.id).single();
     profile = r.data || null;
   } catch (_) {}
 
@@ -97,8 +99,20 @@ async function load(){
   document.getElementById('pId').textContent = profile ? profile.id : '—';
   const role = (profile && profile.role) || 'Пользователь';
   document.getElementById('pRole').textContent = role;
-  const roleColors = { 'Админ': '#f87171', 'Модератор': '#fbbf24', 'Пользователь': '#8b5cf6' };
+  const roleColors = { 'Админ': '#f87171', 'Модератор': '#fbbf24', 'Пользователь': '#8b5cf6', 'Разработчик': '#22d3ee', 'Кирюха': '#f472b6' };
   document.querySelector('.p-row .role').style.color = roleColors[role] || '#8b5cf6';
+
+  // Статус заморозки + ссылки на панели по правам
+  if (profile && profile.frozen) {
+    const sb2 = document.getElementById('statusBanner');
+    sb2.style.display = '';
+    sb2.textContent = '⛔ Твой аккаунт заморожен. Часть функций недоступна — обратись в поддержку.';
+  }
+  const links = document.getElementById('panelLinks');
+  let html = '';
+  if (['Админ', 'Разработчик', 'Кирюха'].includes(role)) html += '<a href="admin.html" class="btn btn-primary">Админ-панель</a>';
+  if (['Модератор', 'Админ', 'Разработчик', 'Кирюха'].includes(role)) html += '<a href="moder.html" class="btn btn-outline">Модер-панель</a>';
+  if (html) { links.innerHTML = html; links.style.display = ''; }
   document.getElementById('pEmail').textContent = user.email;
   document.getElementById('pHwid').textContent = (profile && profile.hwid) || 'Не привязан';
 

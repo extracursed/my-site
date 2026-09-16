@@ -34,6 +34,7 @@
 </header>
 
 <main>
+<div class="freeze-banner" id="freezeBanner">⛔ Твой аккаунт заморожен. Часть функций недоступна — обратись в поддержку.</div>
 <!-- HERO -->
 <section class="hero container">
   <div class="hero-badge"><span class="dot"></span>40+ функций HUD + Visuals + Utils · Обновление 2.4 уже доступно</div>
@@ -336,7 +337,13 @@ userChip.addEventListener('click', () => { location.href = 'profile.html'; });
 async function refreshSession(){
   if (!sb) return;
   const { data } = await sb.auth.getSession();
-  renderUser(data.session?.user || null);
+  const user = data.session?.user || null;
+  renderUser(user);
+  // Баннер заморозки
+  try {
+    document.getElementById('freezeBanner').style.display =
+      (user && (await sb.from('profiles').select('frozen').eq('user_id', user.id).single()).data?.frozen) ? '' : 'none';
+  } catch (_) {}
 }
 if (sb) {
   refreshSession();
@@ -354,7 +361,11 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     password: document.getElementById('loginPass').value
   });
   setLoading(btn, false);
-  if (error) return setMsg(msg, "Не удалось войти: " + error.message);
+  if (error) {
+    const m = (error.message || "").toLowerCase();
+    if (m.includes("banned") || m.includes("ban ")) return setMsg(msg, "Аккаунт заблокирован ⛔ Обратись в поддержку");
+    return setMsg(msg, "Не удалось войти: " + error.message);
+  }
   closeAuth();
 });
 // Восстановление по Email
