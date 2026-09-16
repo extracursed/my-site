@@ -25,7 +25,8 @@
       <a href="#quickstart">Старт</a>
     </nav>
     <div class="header-actions">
-      <button class="btn btn-ghost" data-open="login">Войти</button>
+      <button class="btn btn-ghost" data-open="login" id="loginBtn">Войти</button>
+      <button class="btn btn-ghost user-chip" id="userChip" style="display:none"></button>
       <a href="#download" class="btn btn-primary">Скачать лаунчер</a>
     </div>
     <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
@@ -178,12 +179,13 @@
       <h2>Авторизация</h2>
       <p class="auth-sub">Войди, чтобы попасть в свой профиль</p>
       <form id="loginForm">
-        <input type="text" class="auth-input" placeholder="Введите ваш логин или почту" required>
+        <input type="email" class="auth-input" id="loginEmail" placeholder="Введите вашу почту" required>
         <div class="pass-wrap">
           <input type="password" class="auth-input" id="loginPass" placeholder="Введите пароль" required>
           <button type="button" class="eye" data-eye="loginPass" aria-label="Показать пароль">👁</button>
         </div>
-        <button type="submit" class="btn btn-primary auth-btn">Войти</button>
+        <div class="form-msg" id="loginMsg"></div>
+        <button type="submit" class="btn btn-primary auth-btn" id="loginSubmit">Войти</button>
       </form>
       <div class="auth-links">
         <span>Нет аккаунта? <a href="#" data-switch="register">Регистрация</a></span>
@@ -206,8 +208,8 @@
       <h2>Регистрация</h2>
       <p class="auth-sub">Зарегистрируйтесь, чтобы попасть в новый мир возможностей Minecraft</p>
       <form id="registerForm">
-        <input type="text" class="auth-input" placeholder="Введите логин" required minlength="3">
-        <input type="email" class="auth-input" placeholder="Введите Email" required>
+        <input type="text" class="auth-input" id="regLogin" placeholder="Введите логин" required minlength="3">
+        <input type="email" class="auth-input" id="regEmail" placeholder="Введите Email" required>
         <div class="pass-wrap">
           <input type="password" class="auth-input" id="regPass" placeholder="Введите пароль" required minlength="6">
           <button type="button" class="eye" data-eye="regPass" aria-label="Показать пароль">👁</button>
@@ -216,7 +218,8 @@
           <input type="password" class="auth-input" id="regPass2" placeholder="Повторите пароль" required minlength="6">
           <button type="button" class="eye" data-eye="regPass2" aria-label="Показать пароль">👁</button>
         </div>
-        <button type="submit" class="btn btn-primary auth-btn">Зарегистрироваться</button>
+        <div class="form-msg" id="regMsg"></div>
+        <button type="submit" class="btn btn-primary auth-btn" id="regSubmit">Зарегистрироваться</button>
       </form>
       <div class="auth-links single">
         <span>Есть аккаунт? <a href="#" data-switch="login">Логин</a></span>
@@ -230,9 +233,18 @@
     <h2>Восстановление<br>пароля</h2>
     <p class="forgot-sub">Введите email, который вы указывали при регистрации, и выберите способ сброса — ссылка на почту или код в Telegram.</p>
     <form id="forgotForm">
-      <input type="email" class="auth-input" placeholder="Введите Email" required>
+      <input type="email" class="auth-input" id="forgotEmail" placeholder="Введите Email" required>
+      <div class="form-msg" id="forgotMsg"></div>
       <button type="submit" class="btn btn-primary auth-btn">Сбросить по Email</button>
-      <button type="button" class="btn btn-outline auth-btn" id="tgReset">Сбросить по Telegram</button>
+      <button type="button" class="btn btn-outline auth-btn" id="tgShow">Сбросить по Telegram</button>
+    </form>
+    <form id="tgForm" style="display:none">
+      <p class="tg-hint">1. Открой <a href="https://t.me/ExtraVisualDLCBot" target="_blank" rel="noopener">@ExtraVisualDLCBot</a> и отправь ему свой email.<br>2. Введи код из чата и новый пароль ниже.</p>
+      <input type="text" class="auth-input" id="tgCode" placeholder="Код из Telegram (6 цифр)" inputmode="numeric" maxlength="6" required>
+      <input type="password" class="auth-input" id="tgNewPass" placeholder="Новый пароль (мин. 6 символов)" required minlength="6">
+      <div class="form-msg" id="tgMsg"></div>
+      <button type="submit" class="btn btn-primary auth-btn" id="tgSubmit">Сменить пароль</button>
+      <button type="button" class="btn btn-ghost auth-btn" id="tgBack">← Назад</button>
     </form>
     <div class="auth-links single center">
       <span>Вспомнили? <a href="#" data-switch="login">Войти</a></span>
@@ -240,7 +252,16 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ===== НАСТРОЙКА SUPABASE — вставь свои ключи =====
+const SUPABASE_URL = "https://vzfjwchkdaafnsoxzddt.supabase.co";       // твой проект
+const SUPABASE_ANON_KEY = "sb_publishable_sqljifUjv-s140nxHWZ5rw_yWJpg_eo";  // publishable key
+const TG_BOT_URL = "https://t.me/ExtraVisualDLCBot";         // бот для сброса пароля
+// =================================================
+const __sbConfigured = SUPABASE_URL.startsWith("http") && SUPABASE_ANON_KEY.length > 20;
+const sb = __sbConfigured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+if (!__sbConfigured) console.warn("[auth] Supabase не настроен: вставь SUPABASE_URL и SUPABASE_ANON_KEY в index.html");
 // Фильтр модулей
 const tabs = document.querySelectorAll('.tab');
 const cards = document.querySelectorAll('#grid .card');
@@ -277,6 +298,10 @@ function openAuth(mode){
   loginModal.style.display = mode === 'login' ? 'flex' : 'none';
   registerModal.style.display = mode === 'register' ? 'flex' : 'none';
   forgotModal.style.display = mode === 'forgot' ? 'block' : 'none';
+  if (mode === 'forgot') { // всегда начинаем с выбора способа
+    document.getElementById('forgotForm').style.display = '';
+    document.getElementById('tgForm').style.display = 'none';
+  }
 }
 function closeAuth(){ overlay.classList.remove('show'); document.body.style.overflow = ''; }
 document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); openAuth(b.dataset.open); }));
@@ -289,15 +314,123 @@ document.querySelectorAll('[data-eye]').forEach(btn => btn.addEventListener('cli
   const inp = document.getElementById(btn.dataset.eye);
   inp.type = inp.type === 'password' ? 'text' : 'password';
 }));
-document.getElementById('loginForm').addEventListener('submit', e => { e.preventDefault(); closeAuth(); });
-document.getElementById('forgotForm').addEventListener('submit', e => { e.preventDefault(); closeAuth(); });
-document.getElementById('tgReset').addEventListener('click', () => closeAuth());
-document.getElementById('registerForm').addEventListener('submit', e => {
+function setMsg(el, text, ok){
+  el.textContent = text || "";
+  el.className = "form-msg" + (text ? (ok ? " ok" : " err") : "");
+}
+function setLoading(btn, on, label){
+  btn.disabled = !!on;
+  btn.dataset.label = btn.dataset.label || btn.textContent;
+  btn.textContent = on ? "Загрузка…" : (label || btn.dataset.label);
+}
+// Шапка: Войти ↔ профиль/выход
+const loginBtn = document.getElementById('loginBtn');
+const userChip = document.getElementById('userChip');
+function renderUser(user){
+  const name = user ? (user.user_metadata?.username || user.email) : null;
+  loginBtn.style.display = user ? "none" : "";
+  userChip.style.display = user ? "" : "none";
+  if (user) userChip.textContent = "👤 " + name + " · выйти";
+}
+userChip.addEventListener('click', async () => {
+  if (sb) await sb.auth.signOut();
+  renderUser(null);
+});
+async function refreshSession(){
+  if (!sb) return;
+  const { data } = await sb.auth.getSession();
+  renderUser(data.session?.user || null);
+}
+if (sb) {
+  refreshSession();
+  sb.auth.onAuthStateChange((_e, session) => renderUser(session?.user || null));
+}
+// Вход
+document.getElementById('loginForm').addEventListener('submit', async e => {
   e.preventDefault();
+  const msg = document.getElementById('loginMsg');
+  const btn = document.getElementById('loginSubmit');
+  if (!sb) return setMsg(msg, "Авторизация не настроена: добавь ключи Supabase в index.html");
+  setMsg(msg, ""); setLoading(btn, true);
+  const { error } = await sb.auth.signInWithPassword({
+    email: document.getElementById('loginEmail').value.trim(),
+    password: document.getElementById('loginPass').value
+  });
+  setLoading(btn, false);
+  if (error) return setMsg(msg, "Не удалось войти: " + error.message);
+  closeAuth();
+});
+// Восстановление по Email
+document.getElementById('forgotForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const msg = document.getElementById('forgotMsg');
+  const btn = e.target.querySelector('[type="submit"]');
+  if (!sb) return setMsg(msg, "Сброс не настроен: добавь ключи Supabase в index.html");
+  setMsg(msg, ""); setLoading(btn, true);
+  const { error } = await sb.auth.resetPasswordForEmail(
+    document.getElementById('forgotEmail').value.trim(),
+    { redirectTo: location.origin }
+  );
+  setLoading(btn, false);
+  if (error) return setMsg(msg, "Ошибка: " + error.message);
+  setMsg(msg, "Ссылка для сброса отправлена на почту ✉", true);
+});
+// Telegram-сброс: показать/скрыть форму с кодом
+const forgotFormEl = document.getElementById('forgotForm');
+const tgFormEl = document.getElementById('tgForm');
+document.getElementById('tgShow').addEventListener('click', () => {
+  forgotFormEl.style.display = 'none';
+  tgFormEl.style.display = '';
+});
+document.getElementById('tgBack').addEventListener('click', () => {
+  tgFormEl.style.display = 'none';
+  forgotFormEl.style.display = '';
+});
+// Отправка кода + нового пароля на /api/telegram-reset
+tgFormEl.addEventListener('submit', async e => {
+  e.preventDefault();
+  const msg = document.getElementById('tgMsg');
+  const btn = document.getElementById('tgSubmit');
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email) return setMsg(msg, "Сначала введи email в поле выше");
+  setMsg(msg, ""); setLoading(btn, true);
+  try {
+    const r = await fetch('/api/telegram-reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        code: document.getElementById('tgCode').value.trim(),
+        newPassword: document.getElementById('tgNewPass').value
+      })
+    });
+    const j = await r.json().catch(() => ({}));
+    setLoading(btn, false);
+    if (!r.ok) return setMsg(msg, j.error || "Не удалось сменить пароль");
+    setMsg(msg, "Пароль изменён! Войди с новым паролем ✅", true);
+    setTimeout(() => { openAuth('login'); }, 1500);
+  } catch (err) {
+    setLoading(btn, false);
+    setMsg(msg, "Нет связи с сервером, попробуй позже");
+  }
+});
+document.getElementById('registerForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const msg = document.getElementById('regMsg');
+  const btn = document.getElementById('regSubmit');
+  if (!sb) return setMsg(msg, "Регистрация не настроена: добавь ключи Supabase в index.html");
   const p1 = document.getElementById('regPass').value;
   const p2 = document.getElementById('regPass2').value;
-  if (p1 !== p2) { document.getElementById('regPass2').focus(); document.getElementById('regPass2').style.borderColor = '#f43f5e'; return; }
-  closeAuth();
+  if (p1 !== p2) { document.getElementById('regPass2').focus(); document.getElementById('regPass2').style.borderColor = '#f43f5e'; return setMsg(msg, "Пароли не совпадают"); }
+  setMsg(msg, ""); setLoading(btn, true);
+  const { error } = await sb.auth.signUp({
+    email: document.getElementById('regEmail').value.trim(),
+    password: p1,
+    options: { data: { username: document.getElementById('regLogin').value.trim() } }
+  });
+  setLoading(btn, false);
+  if (error) return setMsg(msg, "Не удалось зарегистрироваться: " + error.message);
+  setMsg(msg, "Готово! Проверь почту для подтверждения ✉", true);
 });
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {

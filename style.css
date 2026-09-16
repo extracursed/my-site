@@ -262,6 +262,14 @@ body{
 .forgot-sub{color:#d6d6e2;font-size:15px;font-weight:500;margin-bottom:30px}
 .forgot-modal .auth-btn{margin-top:14px}
 .forgot-modal .btn-outline{border-color:rgba(139,92,246,.4)}
+.tg-hint{color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.7}
+.tg-hint a{color:#c4b5fd;font-weight:600}
+/* Сообщения форм + состояние шапки */
+.form-msg{min-height:20px;font-size:13px;margin:2px 0 8px;color:transparent}
+.form-msg.err{color:#f87171}
+.form-msg.ok{color:#34d399}
+.auth-btn:disabled{opacity:.6;cursor:wait;transform:none}
+.user-chip{max-width:220px;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:760px){
   .auth-modal{flex-direction:column;min-height:auto;max-height:92vh;overflow-y:auto}
   .auth-left{width:100%;min-height:200px}
