@@ -270,6 +270,26 @@ body{
 .form-msg.ok{color:#34d399}
 .auth-btn:disabled{opacity:.6;cursor:wait;transform:none}
 .user-chip{max-width:220px;overflow:hidden;text-overflow:ellipsis}
+/* ===== Профиль ===== */
+.profile-wrap{max-width:760px;padding-top:56px;padding-bottom:80px}
+.profile-hello{font-size:clamp(28px,5vw,44px);font-weight:800;margin-bottom:34px}
+.profile-name{color:#4ade80}
+.profile-title{font-size:clamp(20px,3.4vw,30px);font-weight:800;margin-bottom:18px}
+.profile-card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:20px;padding:8px 28px}
+.profile-card.center{text-align:center;padding:48px 28px}
+.profile-card.center h2{margin-bottom:10px}
+.p-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:15px}
+.p-row:last-child{border-bottom:none}
+.p-row span{color:#6b6b85}
+.p-row b{font-weight:600;text-align:right;word-break:break-all}
+.p-row .role{color:#8b5cf6}
+.p-edit{background:none;border:none;color:#6b6b85;cursor:pointer;font-size:16px;margin-left:6px}
+.p-edit:hover{color:#fff}
+.ok-text{color:#4ade80}
+.muted-text{color:#6b6b85}
+.profile-card a{color:#c4b5fd;font-weight:600;text-decoration:none}
+.profile-card a:hover{text-decoration:underline}
+.pass-form{margin-top:16px;display:flex;flex-direction:column;gap:4px;max-width:420px}
 @media(max-width:760px){
   .auth-modal{flex-direction:column;min-height:auto;max-height:92vh;overflow-y:auto}
   .auth-left{width:100%;min-height:200px}

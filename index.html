@@ -330,12 +330,9 @@ function renderUser(user){
   const name = user ? (user.user_metadata?.username || user.email) : null;
   loginBtn.style.display = user ? "none" : "";
   userChip.style.display = user ? "" : "none";
-  if (user) userChip.textContent = "👤 " + name + " · выйти";
+  if (user) userChip.textContent = "👤 " + name;
 }
-userChip.addEventListener('click', async () => {
-  if (sb) await sb.auth.signOut();
-  renderUser(null);
-});
+userChip.addEventListener('click', () => { location.href = 'profile.html'; });
 async function refreshSession(){
   if (!sb) return;
   const { data } = await sb.auth.getSession();
@@ -426,7 +423,7 @@ document.getElementById('registerForm').addEventListener('submit', async e => {
   const { error } = await sb.auth.signUp({
     email: document.getElementById('regEmail').value.trim(),
     password: p1,
-    options: { data: { username: document.getElementById('regLogin').value.trim() } }
+    options: { data: { username: document.getElementById('regLogin').value.trim() }, emailRedirectTo: location.origin }
   });
   setLoading(btn, false);
   if (error) return setMsg(msg, "Не удалось зарегистрироваться: " + error.message);
@@ -435,12 +432,14 @@ document.getElementById('registerForm').addEventListener('submit', async e => {
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     const id = a.getAttribute('href');
-    if (id.length > 1) {
+    if (id.length > 1 && id !== '#login') {
       const el = document.querySelector(id);
       if (el) { e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); }
     }
   });
 });
+// Прямая ссылка на вход: index.html#login
+if (location.hash === '#login') openAuth('login');
 </script>
 </body>
 </html>
