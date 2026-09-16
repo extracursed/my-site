@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExtraVisualDLC — Мод для Minecraft</title>
+<meta name="description" content="ExtraVisualDLC — 40+ функций HUD, Visuals и Utils для Minecraft. Установка за 3 шага.">
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="bg-orbs"><span class="orb orb-1"></span><span class="orb orb-2"></span><span class="orb orb-3"></span></div>
+
+<header class="header" id="top">
+  <div class="container header-inner">
+    <a href="#top" class="logo">
+      <span class="logo-mark">E</span>
+      <span class="logo-text">ExtraVisualDLC</span>
+    </a>
+    <nav class="nav" id="nav">
+      <a href="#modules">Модули</a>
+      <a href="#install">Установка</a>
+      <a href="#quickstart">Старт</a>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-ghost" data-open="login">Войти</button>
+      <a href="#download" class="btn btn-primary">Скачать лаунчер</a>
+    </div>
+    <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+<!-- HERO -->
+<section class="hero container">
+  <div class="hero-badge"><span class="dot"></span>40+ функций HUD + Visuals + Utils · Обновление 2.4 уже доступно</div>
+  <h1 class="hero-title">Extra<br><span class="grad">VisualDLC</span></h1>
+  <p class="hero-sub">От установки до первой игры — без сложной настройки.<br>Скачали клиент и сразу играете.</p>
+  <div class="hero-buttons">
+    <a href="#download" class="btn btn-primary btn-lg">⬇ Скачать лаунчер</a>
+    <a href="#modules" class="btn btn-outline btn-lg">Все модули →</a>
+  </div>
+  <div class="hero-stats">
+    <div><b>40+</b><span>модулей</span></div>
+    <div><b>1.21.4</b><span>Fabric версия</span></div>
+    <div><b>60 FPS+</b><span>без просадок</span></div>
+    <div><b>24/7</b><span>поддержка</span></div>
+  </div>
+
+  <div class="hero-preview">
+    <div class="preview-bar"><i></i><i></i><i></i><span>minecraft · ExtraVisualDLC client 2.4</span></div>
+    <div class="preview-body">
+      <div class="mc-hud">
+        <div class="mc-row">
+          <div class="mc-card watermark">ExtraVisualDLC <em>v2.4</em> · 120 fps · 32 ms</div>
+          <div class="mc-card target"><b>Steve_07</b><span class="hp"><i style="width:72%"></i></span><span class="dist-t">3.2m · 18.5 HP</span></div>
+        </div>
+        <div class="mc-row center"><div class="cross">+</div></div>
+        <div class="mc-row">
+          <div class="mc-card keys">[ W ] [ A ] [ S ] [ D ] <em>LMB · RMB</em></div>
+          <div class="mc-card armor">⛑ ⛓ 👖 🥾 · 6 ✦</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section class="section container" id="modules">
+  <p class="eyebrow">Модули</p>
+  <h2>Все функции мода —<br>в удобных категориях</h2>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-filter="all">Все</button>
+    <button class="tab" data-filter="hud">HUD</button>
+    <button class="tab" data-filter="visuals">Visuals</button>
+    <button class="tab" data-filter="utils">Utils</button>
+  </div>
+
+  <div class="grid" id="grid">
+    <!-- HUD -->
+    <div class="card" data-cat="hud"><h3>Armor Status</h3><p>Прочность брони и урон прямо на экране.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>Potions</h3><p>Активные эффекты и таймеры зелий.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>Inventory HUD</h3><p>Содержимое инвентаря без открытия.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>Cooldowns</h3><p>Кулдауны жемчуга, тотема и еды.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>Watermark</h3><p>Логотип, FPS и пинг в углу экрана.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>Keybinds</h3><p>Список активных биндов клавиш.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>Target HUD</h3><p>Здоровье и дистанция противника.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>Info HUD</h3><p>Координаты, биом, время, направление.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>Notifications</h3><p>Красивые уведомления о событиях.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>Music HUD</h3><p>Сейчас играет: трек и обложка.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>GPS</h3><p>Стрелка и маршрут до точки.</p><span class="tag tag-hud">HUD</span></div>
+    <div class="card" data-cat="hud"><h3>Saturation HUD</h3><p>Голод и насыщение в цифрах.</p><span class="tag tag-hud">HUD</span></div>
+    <!-- VISUALS -->
+    <div class="card" data-cat="visuals"><h3>Target ESP</h3><p>Подсветка игроков сквозь стены.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>Animations</h3><p>Кастомные анимации взмаха и блока.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>View Model</h3><p>Позиция рук и меча от 1-го лица.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>China Hat</h3><p>Стильная шляпка над игроком.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>Particles</h3><p>Хиты с искрами и снегом.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>Jump Circles</h3><p>Круги при прыжке как в CS.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>Item Physics</h3><p>Реалистичное вращение дропа.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>Hit Color</h3><p>Цвет вспышки урона на модели.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>Full Bright</h3><p>Ночное зрение без зелий.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>Block Overlay</h3><p>Подсветка блока под прицелом.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>Trails</h3><p>Следы за снарядами и игроками.</p><span class="tag tag-vis">Visuals</span></div>
+    <div class="card" data-cat="visuals"><h3>Motion Clones</h3><p>Призрачные клоны при движении.</p><span class="tag tag-vis">Visuals</span></div>
+    <!-- UTILS -->
+    <div class="card" data-cat="utils"><h3>Auto Sprint</h3><p>Вечный спринт без зажатой клавиши.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>Item Swap</h3><p>Быстрая смена слота по бинду.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>Elytra Swap</h3><p>Мгновенная замена нагрудника.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>Fake Player</h3><p>Клон для теста комбо и урона.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>Auto Eat</h3><p>Автоеда при низком голоде.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>Free Look</h3><p>Осмотр на 360° без поворота тела.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>Auto Respawn</h3><p>Мгновенное возрождение.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>Totem Indicator</h3><p>Счётчик тотемов противника.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>Zoom</h3><p>Зум камеры по клавише C.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>Streamer Mode</h3><p>Скрывает ники и чат на стриме.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>No Render</h3><p>Отключает дождь, огонь, туман.</p><span class="tag tag-util">Utils</span></div>
+    <div class="card" data-cat="utils"><h3>Lock Slot</h3><p>Блокирует слот от случайного выброса.</p><span class="tag tag-util">Utils</span></div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section class="section container" id="install">
+  <p class="eyebrow">Установка</p>
+  <h2>Проще, чем кажется.<br>Всего два шага.</h2>
+  <div class="steps">
+    <div class="step"><span class="step-num">1</span><h3>Скачайте наш лаунчер</h3><p>Загрузите лаунчер ExtraVisualDLC через личный кабинет.</p><code>ExtraVisualDLC → Скачать лаунчер → Установить</code></div>
+    <div class="step"><span class="step-num">2</span><h3>Запустите лаунчер</h3><p>Запустите лаунчер, настройте его и скачайте майнкрафт с нашими визуалами.</p><code>Лаунчер → Настройка → Играть</code></div>
+  </div>
+</section>
+
+<!-- QUICKSTART -->
+<section class="section container" id="quickstart">
+  <p class="eyebrow">Быстрый старт</p>
+  <h2>От регистрации до первой игры</h2>
+  <div class="start-grid">
+    <div class="start-card"><span class="ico">👤</span><h3>Создайте аккаунт</h3><p>Быстрая регистрация за минуту. Один аккаунт — доступ ко всем продуктам.</p></div>
+    <div class="start-card"><span class="ico">⬇</span><h3>Скачайте клиент</h3><p>Загрузите лаунчер через личный кабинет. Он автоматически подтянет последнюю версию.</p></div>
+    <div class="start-card"><span class="ico">⚔</span><h3>Играйте и побеждайте</h3><p>Выберите сервер и запускайте. Контроль, скорость и точность — с первой секунды.</p></div>
+  </div>
+
+  <div class="cta" id="download">
+    <div>
+      <h3>Готовы прокачать игру?</h3>
+      <p>Лаунчер весит 12 МБ · Windows 10/11 · Обновления автоматически</p>
+    </div>
+    <div class="cta-btns">
+      <a href="#" class="btn btn-primary btn-lg">Скачать для Windows</a>
+      <a href="#modules" class="btn btn-outline">Смотреть модули</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <span>ExtraVisualDLC — мод для Minecraft • 2026 • <a href="#">Условия оферты и возврата</a></span>
+    <span class="disclaimer">Не аффилирован с Mojang AB</span>
+  </div>
+</footer>
+
+<!-- AUTH MODALS -->
+<div class="modal-overlay" id="authOverlay">
+  <!-- ВХОД (скрин 1) -->
+  <div class="auth-modal" id="loginModal">
+    <div class="auth-left">
+      <div class="auth-left-bg"></div>
+      <div class="auth-left-content">
+        <p class="auth-left-title">Откройте новые возможности для игры с уникальными функциями</p>
+        <div class="auth-dots"><span></span><span class="active"></span><span></span><span></span></div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <button class="auth-close" data-close aria-label="Закрыть">✕</button>
+      <h2>Авторизация</h2>
+      <p class="auth-sub">Войди, чтобы попасть в свой профиль</p>
+      <form id="loginForm">
+        <input type="text" class="auth-input" placeholder="Введите ваш логин или почту" required>
+        <div class="pass-wrap">
+          <input type="password" class="auth-input" id="loginPass" placeholder="Введите пароль" required>
+          <button type="button" class="eye" data-eye="loginPass" aria-label="Показать пароль">👁</button>
+        </div>
+        <button type="submit" class="btn btn-primary auth-btn">Войти</button>
+      </form>
+      <div class="auth-links">
+        <span>Нет аккаунта? <a href="#" data-switch="register">Регистрация</a></span>
+        <a href="#" class="muted" data-switch="forgot">Забыл пароль</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- РЕГИСТРАЦИЯ (скрин 2) -->
+  <div class="auth-modal" id="registerModal" style="display:none">
+    <div class="auth-left">
+      <div class="auth-left-bg reg"></div>
+      <div class="auth-left-content">
+        <p class="auth-left-title">Начните свой путь к идеальной игре прямо сейчас</p>
+        <div class="auth-dots"><span></span><span></span><span></span><span class="active"></span></div>
+      </div>
+    </div>
+    <div class="auth-right">
+      <button class="auth-close" data-close aria-label="Закрыть">✕</button>
+      <h2>Регистрация</h2>
+      <p class="auth-sub">Зарегистрируйтесь, чтобы попасть в новый мир возможностей Minecraft</p>
+      <form id="registerForm">
+        <input type="text" class="auth-input" placeholder="Введите логин" required minlength="3">
+        <input type="email" class="auth-input" placeholder="Введите Email" required>
+        <div class="pass-wrap">
+          <input type="password" class="auth-input" id="regPass" placeholder="Введите пароль" required minlength="6">
+          <button type="button" class="eye" data-eye="regPass" aria-label="Показать пароль">👁</button>
+        </div>
+        <div class="pass-wrap">
+          <input type="password" class="auth-input" id="regPass2" placeholder="Повторите пароль" required minlength="6">
+          <button type="button" class="eye" data-eye="regPass2" aria-label="Показать пароль">👁</button>
+        </div>
+        <button type="submit" class="btn btn-primary auth-btn">Зарегистрироваться</button>
+      </form>
+      <div class="auth-links single">
+        <span>Есть аккаунт? <a href="#" data-switch="login">Логин</a></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ВОССТАНОВЛЕНИЕ ПАРОЛЯ (без капчи) -->
+  <div class="forgot-modal" id="forgotModal" style="display:none">
+    <button class="auth-close" data-close aria-label="Закрыть">✕</button>
+    <h2>Восстановление<br>пароля</h2>
+    <p class="forgot-sub">Введите email, который вы указывали при регистрации, и выберите способ сброса — ссылка на почту или код в Telegram.</p>
+    <form id="forgotForm">
+      <input type="email" class="auth-input" placeholder="Введите Email" required>
+      <button type="submit" class="btn btn-primary auth-btn">Сбросить по Email</button>
+      <button type="button" class="btn btn-outline auth-btn" id="tgReset">Сбросить по Telegram</button>
+    </form>
+    <div class="auth-links single center">
+      <span>Вспомнили? <a href="#" data-switch="login">Войти</a></span>
+    </div>
+  </div>
+</div>
+
+<script>
+// Фильтр модулей
+const tabs = document.querySelectorAll('.tab');
+const cards = document.querySelectorAll('#grid .card');
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabs.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    cards.forEach(c => {
+      const show = f === 'all' || c.dataset.cat === f;
+      c.style.display = show ? '' : 'none';
+      if (show) { c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); }
+    });
+  });
+});
+
+// Мобильное меню
+const burger = document.getElementById('burger');
+const nav = document.getElementById('nav');
+burger.addEventListener('click', () => {
+  nav.classList.toggle('open');
+  burger.classList.toggle('open');
+});
+nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
+
+// Модалки входа / регистрации / восстановления
+const overlay = document.getElementById('authOverlay');
+const loginModal = document.getElementById('loginModal');
+const registerModal = document.getElementById('registerModal');
+const forgotModal = document.getElementById('forgotModal');
+function openAuth(mode){
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  loginModal.style.display = mode === 'login' ? 'flex' : 'none';
+  registerModal.style.display = mode === 'register' ? 'flex' : 'none';
+  forgotModal.style.display = mode === 'forgot' ? 'block' : 'none';
+}
+function closeAuth(){ overlay.classList.remove('show'); document.body.style.overflow = ''; }
+document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); openAuth(b.dataset.open); }));
+document.querySelectorAll('[data-switch]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); openAuth(a.dataset.switch); }));
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeAuth));
+overlay.addEventListener('click', e => { if (e.target === overlay) closeAuth(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuth(); });
+// Глазок пароля
+document.querySelectorAll('[data-eye]').forEach(btn => btn.addEventListener('click', () => {
+  const inp = document.getElementById(btn.dataset.eye);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}));
+document.getElementById('loginForm').addEventListener('submit', e => { e.preventDefault(); closeAuth(); });
+document.getElementById('forgotForm').addEventListener('submit', e => { e.preventDefault(); closeAuth(); });
+document.getElementById('tgReset').addEventListener('click', () => closeAuth());
+document.getElementById('registerForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const p1 = document.getElementById('regPass').value;
+  const p2 = document.getElementById('regPass2').value;
+  if (p1 !== p2) { document.getElementById('regPass2').focus(); document.getElementById('regPass2').style.borderColor = '#f43f5e'; return; }
+  closeAuth();
+});
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if (id.length > 1) {
+      const el = document.querySelector(id);
+      if (el) { e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); }
+    }
+  });
+});
+</script>
+</body>
+</html>
