@@ -507,6 +507,35 @@ kbd{
 .footer-col b{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text);margin-bottom:4px}
 .footer-col a{color:var(--muted);text-decoration:none;font-size:14px;transition:.2s;width:fit-content}
 .footer-col a:hover{color:#fff;transform:translateX(2px)}
+/* ===== Пасхалка «Кирюха» ===== */
+.egg-modal{
+  position:relative;width:min(440px,100%);text-align:center;
+  background:linear-gradient(180deg,#14141f,#0d0d15);
+  border:1px solid rgba(244,114,182,.4);border-radius:28px;
+  box-shadow:0 50px 140px rgba(0,0,0,.65),0 0 90px rgba(244,114,182,.18),inset 0 1px 0 rgba(255,255,255,.09);
+  padding:52px 38px 40px;overflow:hidden;
+  animation:modalIn .3s cubic-bezier(.2,.9,.3,1.25);
+}
+.egg-modal::before{
+  content:'';position:absolute;width:340px;height:340px;border-radius:50%;
+  background:radial-gradient(circle,rgba(244,114,182,.22),transparent 65%);
+  top:-140px;left:50%;transform:translateX(-50%);pointer-events:none;
+}
+.egg-emoji{font-size:54px;animation:eggFloat 2.4s ease-in-out infinite;position:relative}
+@keyframes eggFloat{50%{transform:translateY(-10px) rotate(-8deg)}}
+.egg-title{
+  font-family:'Unbounded';font-weight:900;font-size:clamp(38px,8vw,54px);letter-spacing:1px;
+  margin:14px 0 4px;
+  background:linear-gradient(90deg,#f9a8d4,#c4b5fd,#67e8f9,#f9a8d4);
+  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:eggShine 4s linear infinite;
+  filter:drop-shadow(0 0 26px rgba(244,114,182,.4));
+}
+@keyframes eggShine{to{background-position:300% 0}}
+.egg-sub{color:#c4b5fd;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:2px}
+.egg-text{color:var(--muted);font-size:15px;margin:16px 0 26px;line-height:1.7}
+.egg-modal .btn{position:relative}
+
 .footer .footer-inner{border-top:1px solid var(--border-soft);padding-top:20px}
 
 /* ===== Панели: статистика и фильтры ===== */

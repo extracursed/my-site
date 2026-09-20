@@ -247,7 +247,7 @@
       <b>Помощь</b>
       <a href="https://t.me/extravisualDLC" target="_blank" rel="noopener">Telegram-канал</a>
       <a href="https://t.me/ExtraVisualDLCBot" target="_blank" rel="noopener">Бот поддержки</a>
-      <a href="#">Условия оферты</a>
+      <a href="#" id="offerEgg">Условия оферты 🥚</a>
     </div>
   </div>
   <div class="container footer-inner">
@@ -255,6 +255,18 @@
     <span class="disclaimer">Не аффилирован с Mojang AB</span>
   </div>
 </footer>
+
+<!-- ПАСХАЛКА -->
+<div class="modal-overlay" id="eggOverlay">
+  <div class="egg-modal">
+    <button class="auth-close" data-egg-close aria-label="Закрыть">✕</button>
+    <div class="egg-emoji">🥚</div>
+    <h2 class="egg-title">КИРЮХА</h2>
+    <p class="egg-sub">Ты нашёл секретную пасхалку</p>
+    <p class="egg-text">Высшая роль ExtraVisualDLC.<br>Легенда. Основатель. Респект.</p>
+    <button class="btn btn-primary btn-lg" data-egg-close>Забрать респект 🤝</button>
+  </div>
+</div>
 
 <!-- AUTH MODALS -->
 <div class="modal-overlay" id="authOverlay">
@@ -419,7 +431,27 @@ document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click'
 document.querySelectorAll('[data-switch]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); openAuth(a.dataset.switch); }));
 document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeAuth));
 overlay.addEventListener('click', e => { if (e.target === overlay) closeAuth(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuth(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeAuth();
+    const egg = document.getElementById('eggOverlay');
+    if (egg) { egg.classList.remove('show'); document.body.style.overflow = ''; }
+  }
+});
+// Пасхалка «Кирюха»
+(function(){
+  const egg = document.getElementById('eggOverlay');
+  const btn = document.getElementById('offerEgg');
+  if (!egg || !btn) return;
+  const close = () => { egg.classList.remove('show'); document.body.style.overflow = ''; };
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    egg.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  });
+  egg.querySelectorAll('[data-egg-close]').forEach(b => b.addEventListener('click', close));
+  egg.addEventListener('click', e => { if (e.target === egg) close(); });
+})();
 // Глазок пароля
 document.querySelectorAll('[data-eye]').forEach(btn => btn.addEventListener('click', () => {
   const inp = document.getElementById(btn.dataset.eye);
