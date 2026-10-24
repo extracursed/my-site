@@ -1,7 +1,8 @@
 // Vercel Function: CORS-прокси для LarpMusic (ЛарпМузыка).
 // GET  https://www.extravisualdlc.online/api/proxy?url=https://...
-// POST https://www.extravisualdlc.online/api/proxy  (body: url=... в x-www-form-urlencoded)
+// POST https://www.extravisualdlc.online/api/proxy  (body: url=... в form или JSON {url})
 // Пропускает только хосты из белого списка — это не open-proxy.
+// Пробрасывает x-auth-token/authorization/content-type — нужно для GraphQL (Zvuk).
 
 const ALLOW = [
   "api.vk.com",
@@ -17,8 +18,14 @@ const ALLOW = [
   // прямые mp3-URL с YouTube (аудио-потоки из Piped /streams)
   "googlevideo.com",
   // превью iTunes (30с — крайний случай)
-  "mzstatic.com"
+  "mzstatic.com",
+  // Zvuk (zvuk.com) — поиск + полные mp3, анонимный токен
+  "zvuk.com"
 ];
+
+// заголовки, которые пробрасываем от клиента к цели
+const FWD_HEADERS = ["x-auth-token", "authorization", "content-type", "accept", "accept-language"];
+const CHROME_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -30,12 +37,16 @@ module.exports = async (req, res) => {
   for (const k in CORS) res.setHeader(k, CORS[k]);
   if (req.method === "OPTIONS") return res.status(204).end();
 
-  // GET: ?url=... ; POST: url=... в body
+  // GET: ?url=... ; POST: url=... в form-body или поле url в JSON
   let target = (req.query && req.query.url) || "";
-  if (!target && req.method === "POST") {
-    const body = typeof req.body === "string" ? req.body : "";
-    const m = body.match(/(?:^|&)url=([^&]*)/);
-    if (m) target = decodeURIComponent(m[1].replace(/\+/g, " "));
+  if (!target) {
+    const b = req.body;
+    if (typeof b === "string") {
+      const m = b.match(/(?:^|&)url=([^&]*)/);
+      if (m) target = decodeURIComponent(m[1].replace(/\+/g, " "));
+    } else if (b && typeof b === "object" && typeof b.url === "string") {
+      target = b.url;
+    }
   }
   if (!target) return res.status(400).send("Добавь параметр ?url=https://...");
 
@@ -46,10 +57,26 @@ module.exports = async (req, res) => {
     return res.status(403).send("Хост вне белого списка: " + host);
   }
 
-  const init = { method: req.method === "POST" ? "POST" : "GET", redirect: "follow" };
+  // заголовки на цель: свои от клиента + Origin/Referer как у сайта-источника
+  const fwd = { "user-agent": String(req.headers["user-agent"] || CHROME_UA) };
+  for (const k of FWD_HEADERS) {
+    if (req.headers[k]) fwd[k] = String(req.headers[k]);
+  }
+  fwd.origin = t.origin;
+  fwd.referer = t.origin + "/";
+
+  const init = { method: req.method === "POST" ? "POST" : "GET", redirect: "follow", headers: fwd };
   if (req.method === "POST") {
-    init.body = typeof req.body === "string" ? req.body : "";
-    init.headers = { "Content-Type": "application/x-www-form-urlencoded" };
+    const ct = String(req.headers["content-type"] || "");
+    if (typeof req.body === "string") {
+      init.body = req.body;
+    } else if (req.body != null) {
+      // Vercel уже распарсил body — собираем обратно под исходный content-type
+      init.body = /json/i.test(ct) ? JSON.stringify(req.body)
+                                   : new URLSearchParams(req.body).toString();
+    } else {
+      init.body = "";
+    }
   }
 
   try {
