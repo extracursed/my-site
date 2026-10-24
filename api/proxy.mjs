@@ -40,19 +40,36 @@ const CORS = {
 const CHALLENGE_RE = /get_cookie_spid|servicepipe\.tech|js-challenge/i;
 
 function cookiesFrom (html) {
-  const spid = html.match(/function get_cookie_spid\(\)\s*\{\s*return\s+"([^"]+)"/);
-  const spsn = html.match(/function get_cookie_spsn\(\)\s*\{\s*return\s+"([^"]+)"/);
-  if (!spid) return [];
-  const out = [spid[1]];
-  if (spsn) out.push(spsn[1]);
+  // generic: вытаскиваем ВСЕ get_cookie_*() из HTML-челленджа (spid/spsc/spsn/…)
+  const out = [];
+  const re = /function get_cookie_(\w+)\(\)\s*\{\s*return\s+"([^"]+)"/g;
+  let m;
+  while ((m = re.exec(html))) {
+    const val = m[2];
+    out.push(val.indexOf('=') >= 0 ? val : (m[1] + '=' + val));
+  }
   return out;
 }
 
 function setCookiesFrom (headerValue) {
+  // из (склеенных) Set-Cookie берём только известные ServicePipe-куки: spid/spsc/spsn
   const out = [];
-  const re = /(?:^|,\s*)(spid|spsn)=([^;,\s]+)/g;
+  const re = /\b(spid|spsc|spsn)=([^;,\s]+)/g;
   let m;
   while ((m = re.exec(String(headerValue || '')))) out.push(m[1] + '=' + m[2]);
+  return out;
+}
+
+function dedupeByName (list) {
+  // первое вхождение имени выигрывает (пара spid+spsc из одной выдачи)
+  const seen = new Set();
+  const out = [];
+  for (const c of list) {
+    const name = String(c).split('=')[0];
+    if (seen.has(name)) continue;
+    seen.add(name);
+    out.push(c);
+  }
   return out;
 }
 
@@ -179,12 +196,12 @@ export default async function handler (request) {
         break;
       }
       if (!r) {
-        if (jar.length) r = await send(Array.from(new Set(jar)), 'follow');
+        if (jar.length) r = await send(dedupeByName(jar), 'follow');
         else return corsResp(502, 'Ошибка прокси: цепочка редиректов');
       } else if (jar.length) {
         // есть Set-Cookie из петли — пробуем с ними, прежде чем разбирать тело
         try {
-          const withJar = await send(Array.from(new Set(jar)), 'follow');
+          const withJar = await send(dedupeByName(jar), 'follow');
           if (withJar.status === 200 && !/text\/html/.test(withJar.headers.get('content-type') || '')) {
             return passthrough(withJar);
           }
