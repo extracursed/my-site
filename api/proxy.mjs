@@ -2,34 +2,33 @@
 // GET  https://www.extravisualdlc.online/api/proxy?url=https://...
 // POST https://www.extravisualdlc.online/api/proxy  (body: url=... или JSON {url})
 // Пропускает только хосты из белого списка — это не open-proxy.
-// Пробрасывает x-auth-token/authorization/content-type — нужно для GraphQL (Zvuk).
+// Пробрасывает x-auth-token/authorization/content-type/cookie — нужно для GraphQL (Zvuk).
 //
-// Edge runtime: другой пул исходящих IP, чем у Node serverless — Zvuk/ServicePipe
-// пропускает эти адреса (Node-вариант получал 418/502).
+// Edge runtime: другой пул исходящих IP, чем у Node serverless.
+// Антибот ServicePipe (zvuk.com) отдаёт JS-челлендж, в котором ГОТОВЫЕ куки
+// spid/spsn лежат прямо в HTML (is_captcha:false) — извлекаем их и повторяем
+// запрос с Cookie. Поддержаны: прямой HTML-челлендж и петля редиректов (в т.ч.
+// с сбором Set-Cookie по цепочке).
+//
+// debug=chain — режим отладки: цепочка редиректов с этого IP как JSON.
 
 export const config = { runtime: 'edge' };
 
 const ALLOW = [
   'api.vk.com',
   'music.yandex.net', 'login.yandex.ru',
-  'api.audius.co', 'audius.co',            // discovery-ноды + creator-ноды (аудио-стримы)
+  'api.audius.co', 'audius.co',
   'api.spotify.com', 'accounts.spotify.com',
-  'archive.org',                            // и *.us.archive.org (загрузки mp3)
-  // YouTube через публичные инстансы Piped (полные треки)
+  'archive.org',
   'pipedapi.kavin.rocks', 'pipedapi.adminforge.de', 'api.piped.private.coffee',
   'pipedapi.reallyaweso.me', 'pipedapi.drgns.space', 'pipedapi.ducks.party',
-  // SoundCloud
   'soundcloud.com', 'sndcdn.com',
-  // прямые mp3-URL с YouTube (аудио-потоки из Piped /streams)
   'googlevideo.com',
-  // превью iTunes (30с — крайний случай)
   'mzstatic.com',
-  // Zvuk (zvuk.com) — поиск + полные mp3, анонимный токен
   'zvuk.com'
 ];
 
-// заголовки, которые пробрасываем от клиента к цели
-const FWD_HEADERS = ['x-auth-token', 'authorization', 'content-type', 'accept', 'accept-language'];
+const FWD_HEADERS = ['x-auth-token', 'authorization', 'content-type', 'accept', 'accept-language', 'cookie'];
 const CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 const CORS = {
@@ -38,14 +37,49 @@ const CORS = {
   'Access-Control-Allow-Headers': '*'
 };
 
+const CHALLENGE_RE = /get_cookie_spid|servicepipe\.tech|js-challenge/i;
+
+function cookiesFrom (html) {
+  const spid = html.match(/function get_cookie_spid\(\)\s*\{\s*return\s+"([^"]+)"/);
+  const spsn = html.match(/function get_cookie_spsn\(\)\s*\{\s*return\s+"([^"]+)"/);
+  if (!spid) return [];
+  const out = [spid[1]];
+  if (spsn) out.push(spsn[1]);
+  return out;
+}
+
+function setCookiesFrom (headerValue) {
+  const out = [];
+  const re = /(?:^|,\s*)(spid|spsn)=([^;,\s]+)/g;
+  let m;
+  while ((m = re.exec(String(headerValue || '')))) out.push(m[1] + '=' + m[2]);
+  return out;
+}
+
+function corsResp (status, body, contentType) {
+  return new Response(body, {
+    status,
+    headers: Object.assign({ 'Content-Type': contentType || 'text/plain; charset=utf-8' }, CORS)
+  });
+}
+
+function passthrough (r) {
+  const out = new Headers(CORS);
+  const c = r.headers.get('content-type');
+  if (c) out.set('content-type', c);
+  const len = r.headers.get('content-length');
+  if (len) out.set('content-length', len);
+  return new Response(r.body, { status: r.status, headers: out });
+}
+
 export default async function handler (request) {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
 
   let raw = '';
   if (request.method === 'POST') raw = await request.text();
 
-  // GET: ?url=... ; POST: url=... в form-body или поле url в JSON
-  let target = new URL(request.url).searchParams.get('url') || '';
+  const pageUrl = new URL(request.url);
+  let target = pageUrl.searchParams.get('url') || '';
   if (!target && raw) {
     const ct = request.headers.get('content-type') || '';
     if (/json/i.test(ct)) {
@@ -59,16 +93,15 @@ export default async function handler (request) {
       if (m) target = decodeURIComponent(m[1].replace(/\+/g, ' '));
     }
   }
-  if (!target) return new Response('Добавь параметр ?url=https://...', { status: 400, headers: CORS });
+  if (!target) return corsResp(400, 'Добавь параметр ?url=https://...');
 
   let t;
-  try { t = new URL(target); } catch (e) { return new Response('Некорректный URL', { status: 400, headers: CORS }); }
+  try { t = new URL(target); } catch (e) { return corsResp(400, 'Некорректный URL'); }
   const host = String(t.hostname || '').toLowerCase();
   if (t.protocol !== 'https:' || !ALLOW.some(h => host === h || host.endsWith('.' + h))) {
-    return new Response('Хост вне белого списка: ' + host, { status: 403, headers: CORS });
+    return corsResp(403, 'Хост вне белого списка: ' + host);
   }
 
-  // заголовки на цель: свои от клиента + Origin/Referer как у сайта-источника
   const fwd = new Headers();
   fwd.set('user-agent', request.headers.get('user-agent') || CHROME_UA);
   for (const k of FWD_HEADERS) {
@@ -78,20 +111,109 @@ export default async function handler (request) {
   fwd.set('origin', t.origin);
   fwd.set('referer', t.origin + '/');
 
-  const init = { method: request.method === 'POST' ? 'POST' : 'GET', redirect: 'follow', headers: fwd };
-  if (request.method === 'POST') init.body = raw;
+  const init = {
+    method: request.method === 'POST' ? 'POST' : 'GET',
+    headers: fwd,
+    body: request.method === 'POST' ? raw : undefined
+  };
+
+  /* ---- debug=chain: цепочка редиректов с этого IP как JSON ---- */
+  if (pageUrl.searchParams.get('debug') === 'chain') {
+    const hops = [];
+    let cur = target;
+    for (let i = 0; i < 6; i++) {
+      let r;
+      try { r = await fetch(cur, Object.assign({}, init, { redirect: 'manual' })); }
+      catch (e) { hops.push({ i, err: String((e && e.message) || e) }); break; }
+      const ct2 = r.headers.get('content-type') || '';
+      let head = '';
+      try {
+        if (/text\/html|json|text\//.test(ct2)) head = (await r.text()).slice(0, 500);
+      } catch (e) {}
+      const loc = r.headers.get('location');
+      hops.push({
+        i,
+        url: cur,
+        status: r.status,
+        location: loc ? new URL(loc, cur).href : null,
+        ct: ct2,
+        setCookie: (r.headers.get('set-cookie') || '').slice(0, 300) || null,
+        head
+      });
+      if (r.status >= 300 && r.status < 400 && loc) { cur = new URL(loc, cur).href; continue; }
+      break;
+    }
+    return new Response(JSON.stringify({ hops }, null, 2), {
+      status: 200,
+      headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, CORS)
+    });
+  }
+
+  function send (cookies, redirectMode) {
+    const h = new Headers(fwd);
+    if (cookies && cookies.length) h.set('cookie', cookies.join('; '));
+    return fetch(target, Object.assign({}, init, { headers: h, redirect: redirectMode }));
+  }
 
   try {
-    const r = await fetch(t.href, init);
-    const out = new Headers(CORS);
-    const ct = r.headers.get('content-type');
-    if (ct) out.set('content-type', ct);
-    const len = r.headers.get('content-length');
-    if (len) out.set('content-length', len);
-    // тело транслируется потоком — mp3 без буферизации
-    return new Response(r.body, { status: r.status, headers: out });
+    /* 1) обычная попытка (follow) */
+    let r = null;
+    try {
+      r = await send(null, 'follow');
+    } catch (e) {
+      const msg = String((e && e.message) || e);
+      if (!/redirect/i.test(msg)) throw e;
+      // 2) петля редиректов — идём цепочкой вручную, собираем куки
+      const jar = [];
+      let cur = target;
+      for (let i = 0; i < 6; i++) {
+        let hop;
+        try {
+          hop = await fetch(cur, Object.assign({}, init, { redirect: 'manual' }));
+        } catch (e2) { break; }
+        const sc = hop.headers.get('set-cookie');
+        if (sc) jar.push(...setCookiesFrom(sc));
+        const loc = hop.headers.get('location');
+        if (hop.status >= 300 && hop.status < 400 && loc) { cur = new URL(loc, cur).href; continue; }
+        r = hop;
+        break;
+      }
+      if (!r) {
+        if (jar.length) r = await send(Array.from(new Set(jar)), 'follow');
+        else return corsResp(502, 'Ошибка прокси: цепочка редиректов');
+      } else if (jar.length) {
+        // есть Set-Cookie из петли — пробуем с ними, прежде чем разбирать тело
+        try {
+          const withJar = await send(Array.from(new Set(jar)), 'follow');
+          if (withJar.status === 200 && !/text\/html/.test(withJar.headers.get('content-type') || '')) {
+            return passthrough(withJar);
+          }
+          r = withJar;
+        } catch (e) { /* остаёмся с r */ }
+      }
+    }
+
+    /* 3) HTML-ответ: может быть челленджем ServicePipe (в нём готовые куки) */
+    const ct = r.headers.get('content-type') || '';
+    if (r.status === 200 && /text\/html/.test(ct)) {
+      const html = await r.text();
+      if (CHALLENGE_RE.test(html)) {
+        const ck = cookiesFrom(html);
+        if (ck.length) {
+          const r2 = await send(ck, 'follow');
+          const ct2 = r2.headers.get('content-type') || '';
+          if (!(r2.status === 200 && /text\/html/.test(ct2))) return passthrough(r2);
+          // снова HTML — возможно, новый челлендж; отдаём как есть (одна попытка, без петли)
+          const html2 = await r2.text();
+          return corsResp(200, html2, 'text/html; charset=utf-8');
+        }
+      }
+      return corsResp(r.status, html, ct);
+    }
+
+    /* 4) обычный ответ (json/mp3/…) — потоком */
+    return passthrough(r);
   } catch (e) {
-    return new Response('Ошибка прокси: ' + (e && e.message ? e.message : String(e)),
-      { status: 502, headers: CORS });
+    return corsResp(502, 'Ошибка прокси: ' + ((e && e.message) ? e.message : String(e)));
   }
 }
