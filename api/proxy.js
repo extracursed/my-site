@@ -6,15 +6,18 @@
 const ALLOW = [
   "api.vk.com",
   "music.yandex.net", "login.yandex.ru",
-  "api.audius.co", "discoveryprovider.audius.co",
-  "discoveryprovider2.audius.co", "discoveryprovider3.audius.co", "discoveryprovider4.audius.co",
+  "api.audius.co", "audius.co",            // discovery-ноды + creator-ноды (аудио-стримы)
   "api.spotify.com", "accounts.spotify.com",
-  "archive.org",
+  "archive.org",                            // и *.us.archive.org (загрузки mp3)
   // YouTube через публичные инстансы Piped (полные треки)
   "pipedapi.kavin.rocks", "pipedapi.adminforge.de", "api.piped.private.coffee",
   "pipedapi.reallyaweso.me", "pipedapi.drgns.space", "pipedapi.ducks.party",
   // SoundCloud
-  "soundcloud.com", "sndcdn.com"
+  "soundcloud.com", "sndcdn.com",
+  // прямые mp3-URL с YouTube (аудио-потоки из Piped /streams)
+  "googlevideo.com",
+  // превью iTunes (30с — крайний случай)
+  "mzstatic.com"
 ];
 
 const CORS = {
@@ -52,7 +55,17 @@ module.exports = async (req, res) => {
   try {
     const r = await fetch(t.href, init);
     res.setHeader("Content-Type", r.headers.get("Content-Type") || "application/json; charset=utf-8");
+    const len = r.headers.get("Content-Length");
+    if (len) res.setHeader("Content-Length", len);
     res.status(r.status);
+    // стримим тело как есть — mp3 уходят постранично, без буферизации в память
+    if (r.body) {
+      try {
+        const { Readable } = require("stream");
+        Readable.fromWeb(r.body).pipe(res);
+        return;
+      } catch (e) { /* падаем в буферизацию ниже */ }
+    }
     return res.send(Buffer.from(await r.arrayBuffer()));
   } catch (e) {
     return res.status(502).send("Ошибка прокси: " + (e && e.message ? e.message : String(e)));
