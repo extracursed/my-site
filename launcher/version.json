@@ -1,8 +1,0 @@
-{
-  "version": "1.5.8",
-  "url": "https://github.com/extracursed/ExtraVisualDLC/releases/download/v1.5.8/ExtraVisualDLC.exe",
-  "notes": "HUD nick in Users part, mod 1.2.3",
-  "mod_url": "https://github.com/extracursed/ExtraVisualDLC-1.2.1-fixed.jar/releases/download/v1.2.3/ExtraVisualDLC-1.2.3.jar",
-  "mc_version": "1.21.4",
-  "fabric_loader": "0.19.5"
-}
